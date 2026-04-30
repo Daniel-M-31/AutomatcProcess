@@ -10,13 +10,18 @@ while True:
             inp = str(input('[H] Set Routine  [L] List Routines  [Q] Quit '))
 
             if inp == 'L' or inp == 'l':
-                pass
+
+                while True:
+                    cs.lst()
+                    break
+
             elif inp == 'Q' or inp == 'q':
                 break
+
             elif inp == 'H' or inp == 'h':
 
                 while True:
-                    HS = str(input('Set shutdown time (ex 17:30) or [Q] Quit')).strip()
+                    HS = str(input('Set shutdown time (ex 17:30) or [Q] Quit ')).strip()
 
                     if HS == 'q' or HS == 'Q':
                         break
@@ -29,4 +34,4 @@ while True:
                             break
 
                     else:
-                        print('[Error] Invalid format')
+                        print('[!] Invalid format')
