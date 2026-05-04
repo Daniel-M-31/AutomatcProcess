@@ -13,7 +13,12 @@ while True:
 
                 while True:
                     cs.lst()
-                    break
+                    inp = str(input('[D] Delete Routine  [Q] Quit '))
+                    if inp == 'Q' or inp == 'q':
+                        break
+                    elif inp == 'D' or inp == 'd':
+                        cs.del_tsk()
+                        break
 
             elif inp == 'Q' or inp == 'q':
                 break
