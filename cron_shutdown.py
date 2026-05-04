@@ -1,15 +1,13 @@
 import subprocess as sp
-import getpass as gp
 
 
 def cron(h, m):
     cmand = f"{m} {h} * * * /sbin/shutdown -h now\n"
-    pswd = gp.getpass('Enter sudo password: ')
 
     try:
         #Search programmed tasks
-        sch = sp.run(['sudo', '-S', 'crontab', '-l'], input=(pswd+'\n'), capture_output=True, text=True)
-        del pswd
+        sch = sp.run(['sudo', 'crontab', '-l'], capture_output=True, text=True)
+
         pgd_tks = sch.stdout if sch.returncode ==0 else ''
 
         if cmand in pgd_tks:
@@ -32,10 +30,9 @@ def cron(h, m):
 
 def lst():
     tsk = ['', '']
-    pswd = gp.getpass('Enter sudo password: ')
+
     try:
-        sch = sp.run(['sudo', '-S', 'crontab', '-l'], input=(pswd + '\n'), capture_output=True, text=True)
-        del pswd
+        sch = sp.run(['sudo', 'crontab', '-l'], capture_output=True, text=True)
 
         for i in sch.stdout:
             if i.isnumeric():
@@ -61,17 +58,25 @@ def del_tsk():
         dltsk.reverse()
         dltsk = ' '.join(dltsk)
 
-    try:
-        sch = sp.run(['sudo', 'crontab', '-l'], capture_output=True, text=True)
-        tks = sch.stdout.splitlines() if sch.stdout else ''
+    else:
+        dltsk = tsk
 
-        if tsk != 'R' and tsk != 'r':
+    if dltsk != 'q' or dltsk != 'Q':
+        try:
+            sch = sp.run(['sudo', 'crontab', '-l'], capture_output=True, text=True)
+            tks = sch.stdout.splitlines() if sch.stdout else ''
 
-            for i in tks:
+            if dltsk != 'R' and dltsk != 'r':
 
-                if sch.stdout and f'{dltsk} * * * /sbin/shutdown -h now' in i  :
-                    tks.remove(i)
-                    break
+                for i in tks:
+
+                    if sch.stdout and f'{dltsk} * * * /sbin/shutdown -h now' in i:
+                        tks.remove(i)
+                        break
+            else:
+                for i in range(0, len(tks)):
+                    if sch.stdout and f'* * * /sbin/shutdown -h now' in tks[(i-1)]:
+                        tks[i-1] = ''
 
             upt_tks = '\n'.join(tks)+'\n'
 
@@ -79,8 +84,10 @@ def del_tsk():
             prss = sp.Popen(['sudo', 'crontab', '-'], stdin=sp.PIPE)
             prss.communicate(input=upt_tks.encode())
 
-            print('[OK] shutdown remove')
+            print('[OK] Shutdown removed successfully')
             lst()
 
-    except:
-        print(f"[!] Unexpected error occurred")
+        except:
+            print(f"[!] Unexpected error occurred")
+
+    else: return
