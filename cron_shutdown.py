@@ -47,7 +47,7 @@ def lst():
                 tsk = ['', '']
 
     except:
-        print(f"[!] Unexpected error occurred")
+        print(f'[!] Unexpected error occurred')
 
 
 def del_tsk():
