@@ -1,5 +1,10 @@
 import subprocess as sp
 
+red = '\033[0;31m'
+green = '\033[0;32m'
+blue = '\033[0;34m'
+wellow = '\033[0;33m'
+rst = '\033[0m'
 
 def cron(h, m):
     cmand = f"{m} {h} * * * /sbin/shutdown -h now\n"
@@ -11,7 +16,7 @@ def cron(h, m):
         pgd_tks = sch.stdout if sch.returncode ==0 else ''
 
         if cmand in pgd_tks:
-            print('[!] Task already exists')
+            print(f'{red}[!] Task already exists \n')
             return
         if pgd_tks and not pgd_tks.endswith('\n'):
             pgd_tks += '\n'
@@ -22,10 +27,10 @@ def cron(h, m):
         prss = sp.Popen(['sudo', 'crontab', '-'], stdin=sp.PIPE)
         prss.communicate(input=upt_tsks.encode())
 
-        print(f'[OK] Shutdown scheduled: {h}:{m}]\n\n')
+        print(f'{green}[OK] Shutdown scheduled: {blue}{h}:{m}\n')
 
     except:
-        print(f"[!] Unexpected error occurred")
+        print(f"{red}[!] Unexpected error occurred")
 
 
 def lst():
@@ -41,53 +46,61 @@ def lst():
                 else: tsk[0] += i
 
                 if len(tsk[1])==2 and len(tsk[0])==2:
-                    print(f'#Shutdown set for {tsk[0]}:{tsk[1]}\n')
+                    print(f'{blue}#Shutdown set for {wellow}{tsk[0]}:{tsk[1]}\n')
 
             if i == '\n':
                 tsk = ['', '']
 
     except:
-        print(f'[!] Unexpected error occurred')
+        print(f'{red}[!] Unexpected error occurred')
 
 
 def del_tsk():
-    tsk = str(input('[R] Reset all tasks [Q] Quit  |  Enter HH:MM to disable '))
-
+    tsk = str(input(f'{wellow}[R]{blue} Reset all tasks {wellow}[Q]{blue} Quit  |  Enter {wellow}HH:MM{blue} to disable{rst} ')).strip()
     if not tsk.isalpha():
         dltsk = tsk.replace(':', ' ').split()
         dltsk.reverse()
         dltsk = ' '.join(dltsk)
 
-    else:
+    elif tsk != '':
         dltsk = tsk
 
-    if dltsk != 'q' or dltsk != 'Q':
-        try:
-            sch = sp.run(['sudo', 'crontab', '-l'], capture_output=True, text=True)
-            tks = sch.stdout.splitlines() if sch.stdout else ''
+    else:
+        return
 
-            if dltsk != 'R' and dltsk != 'r':
+    if dltsk == 'q' or dltsk == 'Q':
+        return
+    try:
 
-                for i in tks:
+        sch = sp.run(['sudo', 'crontab', '-l'], capture_output=True, text=True)
+        tks = sch.stdout.splitlines() if sch.stdout else ''
 
-                    if sch.stdout and f'{dltsk} * * * /sbin/shutdown -h now' in i:
-                        tks.remove(i)
-                        break
-            else:
-                for i in range(0, len(tks)):
-                    if sch.stdout and f'* * * /sbin/shutdown -h now' in tks[(i-1)]:
-                        tks[i-1] = ''
+        if dltsk == 'R' or dltsk == 'r':
+            if not any(' * * * /sbin/shutdown -h now' in i for i in tks):
+                return print(f'{red}[!] Task already removed\n')
 
-            upt_tks = '\n'.join(tks)+'\n'
+            for i in range(0, len(tks)):
+                if sch.stdout and f'* * * /sbin/shutdown -h now' in tks[(i - 1)]:
+                    tks[i - 1] = ''
+
+        else:
+            if not f'{dltsk} * * * /sbin/shutdown -h now' in tks:
+                return print(f'{red}[!] This Task not exists\n')
+
+            for i in tks:
+                if sch.stdout and f'{dltsk} * * * /sbin/shutdown -h now' in i:
+                    tks.remove(i)
+                    break
 
 
-            prss = sp.Popen(['sudo', 'crontab', '-'], stdin=sp.PIPE)
-            prss.communicate(input=upt_tks.encode())
+        upt_tks = '\n'.join(tks)+'\n'
 
-            print('[OK] Shutdown removed successfully')
-            lst()
 
-        except:
-            print(f"[!] Unexpected error occurred")
+        prss = sp.Popen(['sudo', 'crontab', '-'], stdin=sp.PIPE)
+        prss.communicate(input=upt_tks.encode())
 
-    else: return
+        print(f'{green}[OK] Shutdown removed successfully\n')
+        lst()
+
+    except:
+            print(f"{red}[!] Unexpected error occurred\n")
