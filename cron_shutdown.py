@@ -77,7 +77,7 @@ def del_tsk():
 
         if dltsk == 'R' or dltsk == 'r':
             if not any(' * * * /sbin/shutdown -h now' in i for i in tks):
-                return print(f'{red}[!] Task already removed\n')
+                return print(f'{red}[!] All tasks have been removed\n')
 
             for i in range(0, len(tks)):
                 if sch.stdout and f'* * * /sbin/shutdown -h now' in tks[(i - 1)]:
@@ -85,7 +85,7 @@ def del_tsk():
 
         else:
             if not f'{dltsk} * * * /sbin/shutdown -h now' in tks:
-                return print(f'{red}[!] This Task not exists\n')
+                return print(f'{red}[!] Task not found\n')
 
             for i in tks:
                 if sch.stdout and f'{dltsk} * * * /sbin/shutdown -h now' in i:
